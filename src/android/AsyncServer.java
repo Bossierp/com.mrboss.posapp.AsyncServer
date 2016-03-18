@@ -186,6 +186,7 @@ public class AsyncServer extends CordovaPlugin {
                     sendpass = true;
                 } else {
 //                  SetLog(sb, "数据上传失败...");
+                    return "Upload Error";
                 }
 
                 if (sendpass) {
