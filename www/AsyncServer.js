@@ -27,7 +27,6 @@ var platform = require('cordova/platform');
  */
 
 module.exports = {
-
     /**
      * Send Application to background mode.
      *
@@ -36,5 +35,8 @@ module.exports = {
      */
     SyncDataToAndroid: function(successCallback, errorCallback) {
         exec(successCallback, null, 'AsyncServer', 'SyncDataToAndroid', [successCallback, errorCallback]);
-    }
+    },
+    UploadData: function(strjson, webapiurl, dbname, deleteDay, deleteLocalData, successCallback, errorCallback) {
+        exec(successCallback, null, 'AsyncServer', 'UploadData', [strjson, webapiurl, dbname, deleteDay, deleteLocalData, successCallback, errorCallback]);
+    },
 };
