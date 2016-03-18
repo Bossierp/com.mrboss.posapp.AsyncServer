@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+           id="com.mrboss.posapp.AsyncServer"
+      version="0.0.1">
+
+    <name>Android AsyncServer</name>
+    <description>Cordova Android AsyncServer Plugin</description>
+    <license>Apache 2.0</license>
+    <keywords>cordova,android,AsyncServer</keywords>
+    <repo>https://github.com/ZhichengChen/cordova-plugin-android-AsyncServer.git</repo>
+    <issue>https://github.com/ZhichengChen/cordova-plugin-android-AsyncServer/issues</issue>
+
+    <js-module src="www/AsyncServer.js" name="AsyncServer">
+        <merges target="navigator.AsyncServer" />
+    </js-module>
+
+    <!-- android -->
+    <platform name="android">
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="AsyncServer">
+                <param name="android-package" value="com.mrboss.posapp.AsyncServer.AsyncServer"/>
+            </feature>
+        </config-file>
+
+        <source-file src="src/android/HttpHelper.java" target-dir="src/com/mrboss/posapp/AsyncServer" />
+        <source-file src="src/android/AsyncServer.java" target-dir="src/com/mrboss/posapp/AsyncServer" />
+
+    </platform>
+
+</plugin>
