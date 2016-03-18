@@ -48,6 +48,7 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
