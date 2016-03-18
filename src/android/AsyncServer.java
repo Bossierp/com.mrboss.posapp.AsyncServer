@@ -212,8 +212,10 @@ public class AsyncServer extends CordovaPlugin {
                 SyncData = false;
                 return "OK";
             } catch (IOException e) {
+                SyncData = true;
                 return "Unable to retrieve web page. URL may be invalid.";
             } catch (Exception e) {
+                SyncData = true;
                 return e.getMessage();
             }
         }
@@ -221,7 +223,7 @@ public class AsyncServer extends CordovaPlugin {
 
         @Override
         protected void onPostExecute(Object o) {
-            Alert(o.toString().length() + "");
+            Alert(o.toString() + "");
             callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, o.toString()));
             callbackContext.success();
         }
