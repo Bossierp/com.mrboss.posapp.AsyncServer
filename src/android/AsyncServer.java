@@ -179,7 +179,7 @@ public class AsyncServer extends CordovaPlugin {
                 JSONObject json = GetDataSet(tableList, dbname);
                 Gson gson = new Gson();
                 String jsondate = gson.toJson(json);
-                String myparams = "jsondate=" + strjson;
+                String myparams = "Method=SendDataFromAndroid&jsondate=" + strjson;
                 String result = new String(HttpHelper.HttpPost(webapiurl, myparams));
                 if (result == "true") {
 //                  SetLog(sb, "数据上传成功...");
