@@ -20,6 +20,7 @@
 package com.mrboss.posapp.AsyncServer;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -82,6 +83,7 @@ public class AsyncServer extends CordovaPlugin {
             int deleteDay = args.getInt(3);
             boolean deleteLocalData = args.getBoolean(4);
             UploadData(strjson, webapiurl, dbname, deleteDay, deleteLocalData, callbackContext);
+            return true;
         }
         Log.e(LOG_TAG, "Called invalid action: " + action);
         return false;
@@ -140,7 +142,7 @@ public class AsyncServer extends CordovaPlugin {
         udt.deleteDay = deleteDay;
         udt.deleteLocalData = deleteLocalData;
         udt.strjson = strjson;
-        udt.webapiurl = strjson;
+        udt.webapiurl = webapiurl;
         udt.callbackContext = callbackContext;
         udt.execute();
     }
@@ -209,13 +211,10 @@ public class AsyncServer extends CordovaPlugin {
 //              SetLog(sb, "开始同步本地库存数据...");
 //              SyncPosStore(application, dataSyncService);
 //              SetLog(sb, "本地库存数据同步完成...");
-                SyncData = false;
                 return "OK";
             } catch (IOException e) {
-                SyncData = true;
-                return "Unable to retrieve web page. URL may be invalid.";
+                return e.getMessage();
             } catch (Exception e) {
-                SyncData = true;
                 return e.getMessage();
             }
         }
@@ -223,9 +222,10 @@ public class AsyncServer extends CordovaPlugin {
 
         @Override
         protected void onPostExecute(Object o) {
-            Alert(o.toString() + "");
+            // Alert(o.toString() + ":" + webapiurl);
             callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, o.toString()));
             callbackContext.success();
+            SyncData = false;
         }
     }
 
@@ -384,7 +384,7 @@ public class AsyncServer extends CordovaPlugin {
 
     private List<SQLTable> MakeUpLoadTable(String strjson) {
         Gson gson = new Gson();
-        return gson.fromJson(strjson, List.class);
+        return gson.fromJson(strjson, new TypeToken<List<SQLTable>>() {}.getType());
     }
 
     private void bindPostHoneycomb(JSONObject row, String key, Cursor cur, int i) throws JSONException {
