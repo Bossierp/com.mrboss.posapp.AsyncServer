@@ -27,8 +27,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.util.Log;
 import android.util.Base64;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -84,9 +92,57 @@ public class AsyncServer extends CordovaPlugin {
 			boolean deleteLocalData = args.getBoolean(4);
 			UploadData(strjson, webapiurl, dbname, deleteDay, deleteLocalData, callbackContext);
 			return true;
+		} else if ("SyncProductImages".equals(action)) {
+			String dbname = args.getString(0);
+			SyncProductImages(dbname, callbackContext);
+			return true;
 		}
 		Log.e(LOG_TAG, "Called invalid action: " + action);
 		return false;
+	}
+
+	private void SyncProductImages(String dbname, CallbackContext callbackContext) {
+		Context mContext = this.cordova.getActivity();
+		File imgdic = mContext.getDir("PhotoImage", Context.MODE_APPEND);
+		if(!imgdic.exists()){
+			imgdic.getParentFile().mkdirs();
+		}
+
+		SQLiteDatabase db = GetSQLiteDatabase(dbname);
+		try {
+			Cursor cur = db.rawQuery("Select Id,PhotoImage From Product", new String[] {});
+			// If query result has rows
+			if (cur != null && cur.moveToFirst()) {
+				do {
+					byte[] photoImage=cur.getBlob(cur.getColumnIndex("PhotoImage"));
+					int id=cur.getInt(cur.getColumnIndex("Id"));
+					String path = "PhotoImage/";
+					String filePath = path + "/" + id + ".gif";
+					FileOutputStream outfile = mContext.openFileOutput(filePath, Context.MODE_APPEND);
+					outfile.write(photoImage);
+					outfile.close();
+//					String filePath_S = path + "/" + id + "_S.gif";
+//					FileOutputStream outfile_s =mContext.openFileOutput(filePath, Context.MODE_APPEND);
+//					Bitmap bmpout_s = BitmapFactory.decodeByteArray(photoImage, 0, photoImage.length);
+//					Bitmap newbm = resizeImage(bmpout_s, 77, 65);
+				} while (cur.moveToNext());
+			}
+
+			if (cur != null) {
+				cur.close();
+			}
+
+			callbackContext.success();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			callbackContext.error(e.getMessage());
+		} catch (IOException e) {
+			e.printStackTrace();
+			callbackContext.error(e.getMessage());
+		}
+		finally {
+			db.close();
+		}
 	}
 
 	public void testScop(CallbackContext callbackContext) throws IOException {

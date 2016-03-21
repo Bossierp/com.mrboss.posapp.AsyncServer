@@ -39,4 +39,7 @@ module.exports = {
     UploadData: function(strjson, webapiurl, dbname, deleteDay, deleteLocalData, successCallback, errorCallback) {
         exec(successCallback, null, 'AsyncServer', 'UploadData', [strjson, webapiurl, dbname, deleteDay, deleteLocalData, successCallback, errorCallback]);
     },
+    SyncProductImages: function(dbname, successCallback, errorCallback) {
+        exec(successCallback, null, 'AsyncServer', 'SyncProductImages', [dbname, successCallback, errorCallback]);
+    },
 };
