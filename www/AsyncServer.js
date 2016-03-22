@@ -34,12 +34,12 @@ module.exports = {
      * @param {Function} completeCallback   The callback that is called when user clicks on a button.
      */
     SyncDataToAndroid: function(successCallback, errorCallback) {
-        exec(successCallback, null, 'AsyncServer', 'SyncDataToAndroid', [successCallback, errorCallback]);
+        exec(successCallback, errorCallback, 'AsyncServer', 'SyncDataToAndroid', [successCallback, errorCallback]);
     },
     UploadData: function(strjson, webapiurl, dbname, deleteDay, deleteLocalData, successCallback, errorCallback) {
-        exec(successCallback, null, 'AsyncServer', 'UploadData', [strjson, webapiurl, dbname, deleteDay, deleteLocalData, successCallback, errorCallback]);
+        exec(successCallback, errorCallback, 'AsyncServer', 'UploadData', [strjson, webapiurl, dbname, deleteDay, deleteLocalData, successCallback, errorCallback]);
     },
-    SyncProductImages: function(dbname, successCallback, errorCallback) {
-        exec(successCallback, null, 'AsyncServer', 'SyncProductImages', [dbname, successCallback, errorCallback]);
+    SyncProductImages: function(webapiurl, successCallback, errorCallback) {
+        exec(successCallback, errorCallback, 'AsyncServer', 'SyncProductImages', [webapiurl, successCallback, errorCallback]);
     },
 };

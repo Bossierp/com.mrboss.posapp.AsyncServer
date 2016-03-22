@@ -93,58 +93,80 @@ public class AsyncServer extends CordovaPlugin {
 			UploadData(strjson, webapiurl, dbname, deleteDay, deleteLocalData, callbackContext);
 			return true;
 		} else if ("SyncProductImages".equals(action)) {
-			String dbname = args.getString(0);
-			SyncProductImages(dbname, callbackContext);
+			String webapiurl = args.getString(0);
+			SyncProductImages(webapiurl, callbackContext);
 			return true;
 		}
 		Log.e(LOG_TAG, "Called invalid action: " + action);
 		return false;
 	}
 
-	private void SyncProductImages(String dbname, CallbackContext callbackContext) {
-		Context mContext = this.cordova.getActivity();
-		File imgdic = mContext.getDir("PhotoImage", Context.MODE_APPEND);
-		if(!imgdic.exists()){
-			imgdic.getParentFile().mkdirs();
-		}
+	private void SyncProductImages(String webapiurl, CallbackContext callbackContext) {
+		SyncProductImagesTask spit = new SyncProductImagesTask();
+		spit.webapiurl = webapiurl;
+		spit.callbackContext = callbackContext;
+		spit.mContext = this.cordova.getActivity();
+		spit.execute();
+	}
+	private class SyncProductImagesTask extends AsyncTask {
+		public String webapiurl = "";
+//		public String imgs = "";
+		public CallbackContext callbackContext;
+		Context mContext;
 
-		SQLiteDatabase db = GetSQLiteDatabase(dbname);
-		try {
-			Cursor cur = db.rawQuery("Select Id,PhotoImage From Product", new String[] {});
-			// If query result has rows
-			if (cur != null && cur.moveToFirst()) {
-				do {
-					byte[] photoImage=cur.getBlob(cur.getColumnIndex("PhotoImage"));
-					int id=cur.getInt(cur.getColumnIndex("Id"));
+		@Override
+		protected Object doInBackground(Object[] params) {
+			File imgdic = mContext.getDir("PhotoImage", Context.MODE_APPEND);
+			if (!imgdic.exists()) {
+				imgdic.getParentFile().mkdirs();
+			}
+
+			try {
+				String reshttp = new String(HttpHelper.HttpPost(webapiurl, "Method=SyncProductImages"));
+				String[] resarr = reshttp.split("|||");
+				String httpimgpath = resarr[0];
+				String imgs = resarr[1];
+				String[] imgarr = imgs.split(",");
+				for (String imgid:imgarr) {
 					String path = "PhotoImage/";
-					String filePath = path + "/" + id + ".gif";
-					FileOutputStream outfile = mContext.openFileOutput(filePath, Context.MODE_APPEND);
+					String filePath = path + imgid + ".gif";
+					File outfiles = mContext.getDir(filePath, Context.MODE_APPEND);
+					FileOutputStream outfile = new FileOutputStream(outfiles);
+					byte[] photoImage = HttpHelper.HttpPost(httpimgpath + imgid + ".gif", "");
 					outfile.write(photoImage);
 					outfile.close();
-//					String filePath_S = path + "/" + id + "_S.gif";
-//					FileOutputStream outfile_s =mContext.openFileOutput(filePath, Context.MODE_APPEND);
-//					Bitmap bmpout_s = BitmapFactory.decodeByteArray(photoImage, 0, photoImage.length);
-//					Bitmap newbm = resizeImage(bmpout_s, 77, 65);
-				} while (cur.moveToNext());
-			}
 
-			if (cur != null) {
-				cur.close();
+					String filePath_s = path + imgid + "_S.gif";
+					File outfiles_s = mContext.getDir(filePath_s, Context.MODE_APPEND);
+					FileOutputStream outfile_s = new FileOutputStream(outfiles_s);
+					byte[] photoImage_s = HttpHelper.HttpPost(httpimgpath + imgid + "_S.gif", "");
+					outfile_s.write(photoImage_s);
+					outfile_s.close();
+				}
+				return "OK";
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+				return e.getMessage();
+			} catch (IOException e) {
+				e.printStackTrace();
+				return e.getMessage();
+			} catch (Exception e) {
+				e.printStackTrace();
+				return e.getMessage();
 			}
-
-			callbackContext.success();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			callbackContext.error(e.getMessage());
-		} catch (IOException e) {
-			e.printStackTrace();
-			callbackContext.error(e.getMessage());
 		}
-		finally {
-			db.close();
+
+		@Override
+		protected void onPostExecute(Object o) {
+			//Alert(o.toString().length() + "");
+			if(o.toString().equals("OK")){
+				callbackContext.success();
+			}
+			else{
+				callbackContext.error(o.toString());
+			}
 		}
 	}
-
 	public void testScop(CallbackContext callbackContext) throws IOException {
 		ConnectivityManager connMgr = (ConnectivityManager)
 		                              this.cordova.getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
