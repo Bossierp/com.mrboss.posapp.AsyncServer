@@ -116,30 +116,31 @@ public class AsyncServer extends CordovaPlugin {
 
 		@Override
 		protected Object doInBackground(Object[] params) {
-			File imgdic = mContext.getDir("PhotoImage", Context.MODE_APPEND);
+			File cachedic = mContext.getCacheDir();
+			File imgdic = new File(cachedic, "PhotoImage/");
 			if (!imgdic.exists()) {
-				imgdic.getParentFile().mkdirs();
+				imgdic.mkdirs();
 			}
 
 			try {
 				String reshttp = new String(HttpHelper.HttpPost(webapiurl, "Method=SyncProductImages"));
-				String[] resarr = reshttp.split("|||");
+				String[] resarr = reshttp.split("---");
 				String httpimgpath = resarr[0];
 				String imgs = resarr[1];
 				String[] imgarr = imgs.split(",");
 				for (String imgid:imgarr) {
-					String path = "PhotoImage/";
-					String filePath = path + imgid + ".gif";
-					File outfiles = mContext.getDir(filePath, Context.MODE_APPEND);
+//					String path = "PhotoImage/";
+					String filePath = imgid + ".gif";
+					File outfiles = new File(imgdic, filePath);
 					FileOutputStream outfile = new FileOutputStream(outfiles);
-					byte[] photoImage = HttpHelper.HttpPost(httpimgpath + imgid + ".gif", "");
+					byte[] photoImage = HttpHelper.HttpGet(httpimgpath + imgid + ".gif");
 					outfile.write(photoImage);
 					outfile.close();
 
-					String filePath_s = path + imgid + "_S.gif";
-					File outfiles_s = mContext.getDir(filePath_s, Context.MODE_APPEND);
+					String filePath_s = imgid + "_S.gif";
+					File outfiles_s = new File(imgdic, filePath_s);
 					FileOutputStream outfile_s = new FileOutputStream(outfiles_s);
-					byte[] photoImage_s = HttpHelper.HttpPost(httpimgpath + imgid + "_S.gif", "");
+					byte[] photoImage_s = HttpHelper.HttpGet(httpimgpath + imgid + "_S.gif");
 					outfile_s.write(photoImage_s);
 					outfile_s.close();
 				}

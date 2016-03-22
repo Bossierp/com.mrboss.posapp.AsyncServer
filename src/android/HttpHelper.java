@@ -24,6 +24,22 @@ public class HttpHelper {
         return readInputStream(inStream);
     }
 
+    public static byte[] HttpGet(String path) throws Exception{
+        URL url = new URL(path);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");// 提交模式
+        conn.setUseCaches(false); 
+        // conn.setConnectTimeout(10000);//连接超时 单位毫秒
+        // conn.setReadTimeout(2000);//读取超时 单位毫秒
+        // conn.setDoOutput(true);// 是否输入参数
+        // byte[] bypes = params.getBytes();
+        // Starts the query
+        conn.connect();
+        // conn.getOutputStream().write(bypes);// 输入参数
+        InputStream inStream=conn.getInputStream();
+        return readInputStream(inStream);
+    }
+
     /**
      * 从输入流中读取数据
      * @param inStream
