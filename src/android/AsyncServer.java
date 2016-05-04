@@ -96,11 +96,86 @@ public class AsyncServer extends CordovaPlugin {
 			String webapiurl = args.getString(0);
 			SyncProductImages(webapiurl, callbackContext);
 			return true;
+		} else if ("SyncTariffImages".equals(action)) {
+			String webapiurl = args.getString(0);
+			String shopid = args.getString(1);
+			SyncTariffImages(webapiurl, shopid, callbackContext);
+			return true;
 		}
 		Log.e(LOG_TAG, "Called invalid action: " + action);
 		return false;
 	}
 
+	private void SyncTariffImages(String webapiurl, String shopid, CallbackContext callbackContext) {
+		SyncTariffImagesTask spit = new SyncTariffImagesTask();
+		spit.webapiurl = webapiurl;
+		spit.shopid = shopid;
+		spit.callbackContext = callbackContext;
+		spit.mContext = this.cordova.getActivity();
+		spit.execute();
+	}
+
+	private class SyncTariffImagesTask extends AsyncTask {
+		public String webapiurl = "";
+		public String shopid = "";
+//		public String imgs = "";
+		public CallbackContext callbackContext;
+		Context mContext;
+
+		@Override
+		protected Object doInBackground(Object[] params) {
+			File cachedic = mContext.getCacheDir();
+			File imgdic = new File(cachedic, "TariffImages/");
+			if (!imgdic.exists()) {
+				imgdic.mkdirs();
+			}
+
+			try {
+				String reshttp = new String(HttpHelper.HttpPost(webapiurl, "Method=SyncTariffImages"));
+				String[] resarr = reshttp.split("★");
+				String httpimgpath = resarr[0];
+				String imgs = resarr[1];
+				String[] imgarr = imgs.split("▲");
+				for (String imgid : imgarr) {
+//					String path = "PhotoImage/";
+					String filePath = imgid + ".gif";
+					File outfiles = new File(imgdic, filePath);
+					FileOutputStream outfile = new FileOutputStream(outfiles);
+					byte[] photoImage = HttpHelper.HttpGet(httpimgpath + imgid + ".gif");
+					outfile.write(photoImage);
+					outfile.close();
+
+					// String filePath_s = imgid + "_S.gif";
+					// File outfiles_s = new File(imgdic, filePath_s);
+					// FileOutputStream outfile_s = new FileOutputStream(outfiles_s);
+					// byte[] photoImage_s = HttpHelper.HttpGet(httpimgpath + imgid + "_S.gif");
+					// outfile_s.write(photoImage_s);
+					// outfile_s.close();
+				}
+				return "OK";
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+				return e.getMessage();
+			} catch (IOException e) {
+				e.printStackTrace();
+				return e.getMessage();
+			} catch (Exception e) {
+				e.printStackTrace();
+				return e.getMessage();
+			}
+		}
+
+		@Override
+		protected void onPostExecute(Object o) {
+			//Alert(o.toString().length() + "");
+			if (o.toString().equals("OK")) {
+				callbackContext.success();
+			} else {
+				callbackContext.error(o.toString());
+			}
+		}
+	}
+	
 	private void SyncProductImages(String webapiurl, CallbackContext callbackContext) {
 		SyncProductImagesTask spit = new SyncProductImagesTask();
 		spit.webapiurl = webapiurl;
@@ -128,7 +203,7 @@ public class AsyncServer extends CordovaPlugin {
 				String httpimgpath = resarr[0];
 				String imgs = resarr[1];
 				String[] imgarr = imgs.split(",");
-				for (String imgid:imgarr) {
+				for (String imgid : imgarr) {
 //					String path = "PhotoImage/";
 					String filePath = imgid + ".gif";
 					File outfiles = new File(imgdic, filePath);
@@ -160,10 +235,9 @@ public class AsyncServer extends CordovaPlugin {
 		@Override
 		protected void onPostExecute(Object o) {
 			//Alert(o.toString().length() + "");
-			if(o.toString().equals("OK")){
+			if (o.toString().equals("OK")) {
 				callbackContext.success();
-			}
-			else{
+			} else {
 				callbackContext.error(o.toString());
 			}
 		}
