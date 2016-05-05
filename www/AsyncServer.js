@@ -42,7 +42,7 @@ module.exports = {
     SyncProductImages: function(webapiurl, successCallback, errorCallback) {
         exec(successCallback, errorCallback, 'AsyncServer', 'SyncProductImages', [webapiurl, successCallback, errorCallback]);
     },
-    SyncTariffImages: function(webapiurl, shopid, successCallback, errorCallback) {
-        exec(successCallback, errorCallback, 'AsyncServer', 'SyncTariffImages', [webapiurl, shopid, successCallback, errorCallback]);
+    SyncTariffImages: function(webapiurl, mac, successCallback, errorCallback) {
+        exec(successCallback, errorCallback, 'AsyncServer', 'SyncTariffImages', [webapiurl, mac, successCallback, errorCallback]);
     },
 };

@@ -98,18 +98,18 @@ public class AsyncServer extends CordovaPlugin {
 			return true;
 		} else if ("SyncTariffImages".equals(action)) {
 			String webapiurl = args.getString(0);
-			String shopid = args.getString(1);
-			SyncTariffImages(webapiurl, shopid, callbackContext);
+			String mac = args.getString(1);
+			SyncTariffImages(webapiurl, mac, callbackContext);
 			return true;
 		}
 		Log.e(LOG_TAG, "Called invalid action: " + action);
 		return false;
 	}
 
-	private void SyncTariffImages(String webapiurl, String shopid, CallbackContext callbackContext) {
+	private void SyncTariffImages(String webapiurl, String mac, CallbackContext callbackContext) {
 		SyncTariffImagesTask spit = new SyncTariffImagesTask();
 		spit.webapiurl = webapiurl;
-		spit.shopid = shopid;
+		spit.mac = mac;
 		spit.callbackContext = callbackContext;
 		spit.mContext = this.cordova.getActivity();
 		spit.execute();
@@ -117,8 +117,7 @@ public class AsyncServer extends CordovaPlugin {
 
 	private class SyncTariffImagesTask extends AsyncTask {
 		public String webapiurl = "";
-		public String shopid = "";
-//		public String imgs = "";
+		public String mac = "";
 		public CallbackContext callbackContext;
 		Context mContext;
 
@@ -131,7 +130,7 @@ public class AsyncServer extends CordovaPlugin {
 			}
 
 			try {
-				String reshttp = new String(HttpHelper.HttpPost(webapiurl, "Method=SyncTariffImages"));
+				String reshttp = new String(HttpHelper.HttpPost(webapiurl, "Method=SyncTariffImages&Mac=" + mac));
 				String[] resarr = reshttp.split("★");
 				String httpimgpath = resarr[0];
 				String imgs = resarr[1];
